@@ -21,13 +21,15 @@ pStr p1;
 2. 与结构结合使用
 
 ```c
-typedef struct tagMyStruct {
+typedef struct tagMyStruct
+{
     int nNum;
     long lLength;
 } MyStruct;
 
 // 等价于
-struct tagMyStruct {
+struct tagMyStruct
+{
     int nNum;
     long lLength;
 };
@@ -36,7 +38,8 @@ typedef struct tagMyStruct MyStruct;
 ```
 
 分析：tagMyStruct 称为“tag”，即“标签”，实际上是一个临时名字，struct 关键字和 tagMyStruct 一起，构成了这个结构类型，不论是否有 typedef，这个结构都存在。
-　　所以，若没有 typedef，则使用 struct tagMyStruct varName 来定义变量，但要注意，使用 tagMyStruct varName 来定义变量是不对的，因为 struct 和 tagMyStruct 合在一起才能表示一个结构类型。
+
+所以，若没有 typedef，则使用 `struct tagMyStruct varName` 来定义变量，但要注意，使用 `tagMyStruct varName` 来定义变量是不对的，因为 struct 和 tagMyStruct 合在一起才能表示一个结构类型。
 
 ## 二、宏定义
 

@@ -107,9 +107,9 @@ __stdcall 是 Standard Call 的缩写，是 C++ 的标准调用方式：所有**
 
 ### 5. __thiscall 函数调用约定
 
-\_\_thiscall 是为了解决类成员调用中 this 指针传递而规定的。\__thiscall 要求把 this 指针放在特定寄存器中，该寄存器由编译器决定。VC 使用 ecx，Borland 的 C++ 编译器使用 eax。返回方式和 __stdcall 相当。
+\_\_thiscall 是为了解决类成员调用中 this 指针传递而规定的。\__thiscall 要求把 this 指针放在特定寄存器中，该寄存器由编译器决定。VC 使用 ecx，Borland 的 C++ 编译器使用 eax。返回方式和 __stdcall 相同。
 
-## 二、x64函数调用约定
+## 二、x64 函数调用约定
 
 X64 只有一种 __fastcall 函数调用约定。
 
@@ -163,7 +163,7 @@ int sum = a+b+c+d+e+f+g;
 00007FF6D22D1801  ret                        # 没做栈平衡
 ```
 
-类的成员函数：参数1、参数2、参数3分别保存在 RDX、R8D、R9D 中，this 指针存放 RCX 中，剩下的参数从右往左依次入栈，被调用者实现栈平衡，返回值存放在 RAX 中。
+类的成员函数：参数1、参数2、参数3 分别保存在 RDX、R8D、R9D 中，this 指针存放 RCX 中，剩下的参数从右往左依次入栈，被调用者实现栈平衡，返回值存放在 RAX 中。
 
 ```assembly
 # 该代码是 msvc 2017 x64 生成的汇编代码
@@ -220,7 +220,7 @@ ARM 和 ARM64 使用的是 ATPCS（ARM-Thumb Procedure Call Standard/ARM-Thumb �
 
 ### 1. ARM
 
-参数 1 ~ 参数 4 分别保存到 R0~R3 寄存器中，剩下的参数从右往左依次入栈，被调用者实现栈平衡，返回值存放在 R0 中。
+参数1 ~ 参数4 分别保存到 R0~R3 寄存器中，剩下的参数从右往左依次入栈，被调用者实现栈平衡，返回值存放在 R0 中。
 
 ```assembly
 ; 该代码是 arm-linux-androideabi-gcc + IDA PRO 生成的反汇编代码
@@ -274,7 +274,7 @@ ARM 和 ARM64 使用的是 ATPCS（ARM-Thumb Procedure Call Standard/ARM-Thumb �
 
 ### 2. ARM64
 
-参数1~参数8 分别保存到 X0~X7 寄存器中 ，剩下的参数从右往左依次入栈，被调用者实现栈平衡，返回值存放在 X0 中。
+参数1 ~ 参数8 分别保存到 X0~X7 寄存器中 ，剩下的参数从右往左依次入栈，被调用者实现栈平衡，返回值存放在 X0 中。
 
 ```assembly
 ; 该代码是 aarch64-linux-android-gcc + IDA PRO 生成的反汇编代码

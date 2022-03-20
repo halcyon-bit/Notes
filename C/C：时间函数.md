@@ -2,17 +2,17 @@
 
 ## 一、clock
 
-可以通过 clock 拿到程序执行时处理器所使用的时钟数来计时：
+通过 clock 拿到程序执行时处理器所使用的时钟数来计时：
 
 ```c
 clock_t clock(void);
 // clock_t == long
 ```
 
-该函数返回程序执行起（一般为程序的开头），处理器时钟所使用的时间。也获取 CPU 所使用的秒数，除以 CLOCKS_PER_SEC 即可。
+该函数返回程序执行起（一般为程序的开头），处理器时钟所使用的时间。也可获取 CPU 所使用的秒数，除以 CLOCKS_PER_SEC 即可。
 
 ```c
-void func()
+void main()
 {
     clock_t start_t = clock();
     printf("%d 个时钟\n", start_t);
@@ -26,15 +26,16 @@ void func()
 ## 二、time
 
 ```c
-time_t time(time_t *time);
+time_t time(time_t* time);
 // time_t == int64_t
 ```
 
-该函数返回系统的当前日历时间，返回的是自1970年1月1日以来所经过的秒数。参数一般传空即可。
+该函数返回系统的当前时间，返回的是自1970年1月1日以来所经过的秒数。参数一般传空即可。
 
 ```c
-void func() 
-{   // 获取当前时间戳，单位为秒    
+void main() 
+{
+    // 获取当前时间戳，单位为秒
     time_t now = time(NULL);
     printf("%d s\n", now);
 }
@@ -43,14 +44,14 @@ void func()
 ### 获取当前时间戳
 
 ```c
-void func()
-{  
+void main()
+{
     // 获取当前时间戳，单位为秒
-    struct timeval time;
-    gettimeofday(&time, NULL);
-    printf("%d s\n", time.tv_sec);
+    struct timeval t;
+    gettimeofday(&t, NULL);
+    printf("%d s\n", t.tv_sec);
     // 获取当前时间戳，单位为毫秒
-    printf("%d ms\n", (time.tv_sec * 1000 + time.tv_usec / 1000));
+    printf("%d ms\n", (t.tv_sec * 1000 + t.tv_usec / 1000));
 }
 ```
 
@@ -64,7 +65,7 @@ char* ctime(const time_t* time);
 示例代码如下：
 
 ```c
-void func() 
+void main() 
 {
     time_t now = time(NULL);
     char* dt = ctime(&now); 
@@ -78,7 +79,7 @@ void func()
 struct tm* localtime(const time_t* time);
 ```
 
-将日历时间转换为本地时间，从1970年起始的时间戳转换为1900年起始的时间数据结构
+将日历时间转换为本地时间，从 1970 年起始的时间戳转换为 1900 年起始的时间数据结构。
 
 另一个类似的函数是 gmtime 函数：
 
@@ -91,7 +92,8 @@ struct tm* gmtime(const time_t* time);
 tm 结构如下：
 
 ```c
-struct tm {
+struct tm
+{
     int tm_sec;   // 秒，正常范围从 0 到 59，但允许至 61  
     int tm_min;   // 分，范围从 0 到 59  
     int tm_hour;  // 小时，范围从 0 到 23
@@ -104,14 +106,14 @@ struct tm {
 };
 ```
 
-tm_sec 在 C89 的范围是[0-61]，在 C99 更正为[0-60]。通常范围是[0-59]，貌似有些系统会出现60秒的跳跃。
+tm_sec 在 C89 的范围是[0-61]，在 C99 更正为[0-60]。通常范围是[0-59]，貌似有些系统会出现 60 秒的跳跃。
 
 tm_mon 是从零开始的，所以一月份为0，十二月份为11。
 
 tm_year 是从1900年开始计算，所以显示年份的时候需要加上1900。
 
 ```c
-void func() 
+void main() 
 {
     time_t rawtime = time(NULL);
     struct tm* ptminfo = localtime(&rawtime);
@@ -131,7 +133,7 @@ char* asctime(const struct tm* time);
 和 ctime 类似，返回的都是一个固定时间格式的字符串，只是传入的参数不同。
 
 ```c
-void func() 
+void main() 
 {    
     time_t rawtime = time(NULL);
     struct tm* info = localtime(&rawtime);
@@ -144,15 +146,15 @@ void func()
 也可以使用 strftime() 函数，该函数可用于格式化日期和时间为指定的格式，如果产生的 C 字符串小于 size 个字符（包括空结束字符），则会返回复制到 str 中的字符总数（不包括空结束字符），否则返回零。
 
 ```c
-size_t strftime(   
-    char *str, // 指向目标数组的指针，用来复制产生的C字符串
+size_t strftime(
+    char* str, // 指向目标数组的指针，用来复制产生的C字符串
     size_t maxsize, // 最多传出字符数量
-    const char *format, // 格式化方式
-    const struct tm *timeptr // tm指针
+    const char* format, // 格式化方式
+    const struct tm* timeptr // tm指针
 );
 ```
 
-format格式如下：
+format 格式如下：
 
 ```
 %a 星期几的缩写
@@ -196,7 +198,7 @@ format格式如下：
 示例代码如下：
 
 ```c
-void func() 
+void main() 
 {
     time_t rawtime = time(NULL);
     char buf[256];

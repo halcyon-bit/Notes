@@ -5,19 +5,22 @@
 ```c
 #include <stdio.h>
 
-typedef struct _TEST_1 {
+typedef struct _TEST_1
+{
 	int a;
 	int b;
 	char *c;
 }Test1;
 
-typedef struct _TEST_2 {
+typedef struct _TEST_2
+{
 	int a;
 	int b;
 	char c[];
 }Test2;
 
-int main() {
+int main()
+{
 	printf("sizeof(struct _TEST_1) = %d\n", sizeof(Test1));
 	printf("sizeof(struct _TEST_2) = %d\n", sizeof(Test2));
 	return 0;
@@ -31,7 +34,7 @@ sizeof(struct _TEST_1) = 16
 sizeof(struct _TEST_2) = 8
 ```
 
-对于 Test1 的结果是 16，通常没有什么疑问，因为 4（int）+4（int）+8（指针）= 16，但是对于 Test2 结构体占用空间为 8 字节，可能会有疑问。
+对于 Test1 的结果是 16，通常没有什么疑问，因为 4(int)+4(int)+8(指针)=16，但是对于 Test2 结构体占用 8 字节，可能会有疑问。
 
 ## 一、柔性数组（flexible array）
 
@@ -40,7 +43,8 @@ sizeof(struct _TEST_2) = 8
 如果数组内一个元素都没有的话，那么访问这个数组将会是未定义行为。
 
 ```c
-typedef struct _TEST_2 {
+typedef struct _TEST_2
+{
 	int a;
 	int b;
 	char c[];
@@ -49,21 +53,18 @@ typedef struct _TEST_2 {
 
 成员 c 是一个数组，但是并没有指定大小，使用 sizeof 计算 Test2，其占用空间也仅仅是 8 字节。
 
-### 1. 好处
+### 优点
 
 #### 内存申请和释放
 
-假设分别使用两种类型的结构体，存储 16 字节的字符数据，需要申请内存。对于 struct _TEST_1：
+假设分别使用两种类型的结构体，存储 16 字节的字符数据，需要申请内存。
 
 ```c
-Test1 *t1 = (Test1*)malloc(sizeof(struct _TEST_1));  // 为结构体申请内存
+// struct _TEST_1:
+Test1* t1 = (Test1*)malloc(sizeof(struct _TEST_1));  // 为结构体申请内存
 t1->c = (char*)malloc(sizeof(char) * 16);  // 为成员指向的数据申请内存
-```
-
-而对于 struct _TEST_2：
-
-```c
-Test2 *t2 = (Test2*)malloc(sizeof(struct _TEST_2) + sizeof(char) * 16);
+// struct _TEST_2:
+Test2* t2 = (Test2*)malloc(sizeof(struct _TEST_2) + sizeof(char) * 16);
 ```
 
 前者需要两次内存申请，而后者只需要一次。前者地址不连续（两次 malloc），后者地址连续。而访问成员 c 的时候，只需要：t2->c，和普通成员无异。
@@ -72,10 +73,11 @@ Test2 *t2 = (Test2*)malloc(sizeof(struct _TEST_2) + sizeof(char) * 16);
 
 #### 数据拷贝
 
-由于前面的差别，导致数据拷贝时，更有区别。对于 struct _TEST_1：
+由于前面的差别，导致数据拷贝时，更有区别。
 
 ```c
-Test1 *t11
+// struct _TEST_1：
+Test1* t11;
 // memcpy(t11, t1, sizeof(struct _TEST_1));  // 不可，这样导致 t11 的 c 和 t1 的 c 指向同一片内存区域。（浅拷贝）
 
 t11->a = t1->a;
@@ -83,10 +85,11 @@ t11->b = t1->b;
 memcpy(t11->c, t1->c, sizeof(char) * 16);
 ```
 
-这里无法一次拷贝，因为它的成员 c 是一个指针类型，需要深拷贝，因此必须拷贝它指向的内存。而对于 struct _TEST_2
+这里无法一次拷贝，因为它的成员 c 是一个指针类型，需要深拷贝，因此必须拷贝它指向的内存。
 
 ```c
-Test2 *t22;
+// struct _TEST_2:
+Test2* t22;
 memcpy(t22, t2, sizeof(struct _TEST_2) + sizeof(char) * 16);
 ```
 
@@ -101,7 +104,8 @@ memcpy(t22, t2, sizeof(struct _TEST_2) + sizeof(char) * 16);
 与柔性数组功能类似，还有一个 0 长数组，不过它并不是标准中的，但是它可以实现类似的功能，使用方式如下：
 
 ```c
-typedef struct _TEST_3 {
+typedef struct _TEST_3
+{
 	int a;
 	int b;
 	char c[0];

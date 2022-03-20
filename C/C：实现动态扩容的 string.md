@@ -26,8 +26,9 @@ string 的实现如下：
 ```c
 static const size_t cstring_min_size = 32;  // 字符串的初始内存大小
 
-struct c_string_t {
-	char *str;  // 字符串
+struct c_string_t
+{
+	char* str;  // 字符串
 	size_t alloced;  // 字符串的内存空间大小
 	size_t len;  // 字符串的长度
 };
@@ -36,7 +37,8 @@ struct c_string_t {
 ## 2. 创建字符串
 
 ```c
-cstring* cstring_create(void) {
+cstring* cstring_create(void)
+{
 	cstring *cstr;
 	cstr = (cstring*)calloc(1, sizeof(*cstr));
 	if (cstr == NULL) {
@@ -55,7 +57,8 @@ cstring* cstring_create(void) {
 ## 3. 销毁字符串
 
 ```c
-void cstring_destroy(cstring *cstr) {
+void cstring_destroy(cstring *cstr) 
+{
 	if (cstr != NULL) {
 		free(cstr->str);
 		free(cstr);
@@ -69,7 +72,8 @@ void cstring_destroy(cstring *cstr) {
 
 ```c
 // 扩展字符串的内存空间
-static void cstring_ensure_space(cstring *cstr, size_t addLen) {
+static void cstring_ensure_space(cstring *cstr, size_t addLen)
+{
 	if (cstr == NULL || addLen == 0) {
 		return;
 	}
@@ -95,7 +99,8 @@ static void cstring_ensure_space(cstring *cstr, size_t addLen) {
 - 在尾部追加字符串
 
 ```c
-void cstring_append_str(cstring *cstr, const char *str, const size_t len) {
+void cstring_append_str(cstring *cstr, const char *str, const size_t len)
+{
 	if (cstr == NULL || str == NULL || *str == '\0') {
 		return;
 	}
@@ -114,7 +119,8 @@ void cstring_append_str(cstring *cstr, const char *str, const size_t len) {
 
 
 ```c
-void cstring_append_char(cstring *cstr, const char c) {
+void cstring_append_char(cstring *cstr, const char c)
+{
 	if (cstr == NULL) {
 		return;
 	}
@@ -131,7 +137,8 @@ void cstring_append_char(cstring *cstr, const char c) {
 
 
 ```c
-void cstring_append_int(cstring *cstr, const int val) {
+void cstring_append_int(cstring *cstr, const int val)
+{
 	char str[32];
 
 	if (cstr == NULL) {
@@ -147,7 +154,8 @@ void cstring_append_int(cstring *cstr, const int val) {
 - 在头部插入字符串
 
 ```c
-void cstring_front_str(cstring *cstr, const char *str, const size_t len) {
+void cstring_front_str(cstring *cstr, const char *str, const size_t len)
+{
 	if (cstr == NULL || str == NULL || *str == '\0') {
 		return;
 	}
@@ -167,7 +175,8 @@ void cstring_front_str(cstring *cstr, const char *str, const size_t len) {
 
 
 ```c
-void cstring_front_char(cstring *cstr, const char c) {
+void cstring_front_char(cstring *cstr, const char c)
+{
 	if (cstr == NULL) {
 		return;
 	}
@@ -185,7 +194,8 @@ void cstring_front_char(cstring *cstr, const char c) {
 
 
 ```c
-void cstring_front_int(cstring *cstr, const int val) {
+void cstring_front_int(cstring *cstr, const int val)
+{
 	char str[32];
 
 	if (cstr == NULL) {
@@ -199,7 +209,8 @@ void cstring_front_int(cstring *cstr, const int val) {
 ## 7. 清空字符串
 
 ```c
-void cstring_clear(cstring *cstr) {
+void cstring_clear(cstring *cstr)
+{
 	if (cstr != NULL) {
 		cstr->len = 0;
 		cstr->str[cstr->len] = '\0';
@@ -210,7 +221,8 @@ void cstring_clear(cstring *cstr) {
 ## 8. 裁剪字符串
 
 ```c
-void cstring_truncate(cstring *cstr, const size_t len) {
+void cstring_truncate(cstring *cstr, const size_t len)
+{
 	if (cstr == NULL || len >= cstr->len) {
 		return;
 	}
@@ -223,7 +235,8 @@ void cstring_truncate(cstring *cstr, const size_t len) {
 ## 9. 删除头部的 N 个字符
 
 ```c
-void cstring_drop_begin(cstring *cstr, const size_t len) {
+void cstring_drop_begin(cstring *cstr, const size_t len)
+{
 	if (cstr == NULL || len == 0) {
 		return;
 	}
@@ -242,7 +255,8 @@ void cstring_drop_begin(cstring *cstr, const size_t len) {
 ## 10. 删除尾部的 N 个字符
 
 ```c
-void cstring_drop_end(cstring *cstr, const size_t len) {
+void cstring_drop_end(cstring *cstr, const size_t len)
+{
 	if (cstr == NULL || len == 0) {
 		return;
 	}
@@ -260,7 +274,8 @@ void cstring_drop_end(cstring *cstr, const size_t len) {
 ## 11. 获取字符串的长度
 
 ```c
-size_t cstring_len(const cstring *cstr) {
+size_t cstring_len(const cstring *cstr)
+{
 	return cstr == NULL ? 0 : cstr->len;
 }
 ```
@@ -270,7 +285,8 @@ size_t cstring_len(const cstring *cstr) {
 使用的是字符串的原始内存。
 
 ```c
-const char* cstring_peek(const cstring *cstr) {
+const char* cstring_peek(const cstring *cstr)
+{
 	return cstr == NULL ? NULL : cstr->str;
 }
 ```
@@ -280,7 +296,8 @@ const char* cstring_peek(const cstring *cstr) {
 重新分配一块内存，存储字符串，并返回。malloc 分配新内存，需要外部进行 free
 
 ```c
-char* cstring_dump(const cstring *cstr, size_t *len) {
+char* cstring_dump(const cstring *cstr, size_t *len)
+{
 	char *str;
 
 	if (cstr == NULL) {
