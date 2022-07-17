@@ -1,159 +1,152 @@
 # 基于范围的 for 循环
 
-## 一、for 循环的新用法
+## 一、C++11 前 for 循环的用法
 
 ```c++
-#include <iostream>
 #include <vector>
+#include <iostream>
 #include <algorithm>
 
-void funcFor(int val) {
-	std::cout << val << " ";
+void func(int val)
+{
+    std::cout << val << " ";
 }
 
-int main() {
-	// C++98/03
-	std::vector<int> vec;
-	for (std::vector<int>::iterator iter = vec.begin(); iter != vec.end(); ++iter) {
-		std::cout << *iter << " ";
-	}
+int main(int argc, char* argv[])
+{
+    std::vector<int> vec{ 1, 2, 3, 4, 5, 6 };
+    for (std::vector<int>::iterator iter = vec.begin(); iter != vec.end(); ++iter) {
+        std::cout << *iter << " ";
+    }
+    std::cout << std::endl;
 
-	// for_each 方法
-	std::for_each(vec.begin(), vec.end(), funcFor);
-	return 0;
+    // for_each 方法
+    std::for_each(vec.begin(), vec.end(), func);
+    return 0;
 }
 ```
 
-for_each 相比一般的 for 循环，只需关注容器中元素的类型，但是不管是哪一种遍历方法，必须显示的给出容器的开始（begin）和结束（end）。
+std::for_each 与普通的 for 循环相比，不需要关注迭代器，只需要关心容器中的元素类型即可。不过都需要显示给出容器的开头和结尾。
 
-C++11 中改善了这种遍历方式，不再需要给出容器的两端，循环会根据容器的范围自动展开，在循环中屏蔽了迭代器的遍历细节，直接抽取容器中的元素进行运算。
+## 二、C++11 的 for 循环
+
+C++11 中改善了这种遍历方式，不再需要给出容器的两端，循环会根据容器的范围自动展开。
 
 ```c++
-#include <iostream>
 #include <vector>
+#include <iostream>
 
 // 语法：
-// for (decl : coll) {
-//	  statement;
+// for (element : container) {
+//    statement;
 // }
+
+int main()
+{
+    std::vector<int> vec{ 1, 2, 3, 4, 5, 6 };
+    for (int n : vec) {
+        std::cout << n << " ";
+    }
+    return 0;
+}
 
 // 编译器会转换为：
-// for (auto _pos = coll.begin(), _end=col.end(); _pos!=_end; ++_pos) {
-//    decl = *_pos;
+// for (auto _begin=vec.begin(), _end=vec.end(); _begin!=_end; ++_begin) {
+//	  n = *_begin;
 //	  statement;
 // }
-
-int main() {
-	std::vector<int> vec;
-	for (auto n : vec) {
-		std::cout << n << " ";
-	}
-}
 ```
 
-n 表示 vec 中的一个元素，同时，这种循环中，冒号前面的变量支持隐式转换的，因此在使用时需要注意。
+基于范围的 for 循环，对于冒号前面的局部变量声明只要求能够支持容器类型的隐式转换。
 
 ```c++
 std::vector<int> vec;
 for (char c : vec)  // int 会被隐式转换为 char
+  // ...
 ```
 
-在这种循环中，都是以只读方式来遍历容器的，如果需要改变容器中的值，需要加上引用，如果是只希望遍历而不是修改，可以使用 `const auto&` 来定义 n 的类型，这样对于复制负担比较大的容器元素也可以无耗的进行遍历。
+以上都是以只读方式来遍历容器的，如果需要改变容器中的值，需要加上引用，如果是只希望遍历而不是修改，可以使用 `const auto&` 来定义 n 的类型，这样对于复制负担比较大的容器元素也可以无耗的进行遍历。
 
-```c++
-std::vector<int> vec;
-for (auto n : vec) {
-	std::cout << n << " ";  // 输出，并把元素的值+1
-}
-```
-
-## 二、使用细节
+## 三、使用细节
 
 ### 1. 推导类型
 
 使用范围的 for 循环和普通的 for 循环的区别：
 
 ```c++
-std::map<int, std::string> test = { {1, "1"}, {1, "2"}, {3, "3"} };
-// 一般情况的 for 循环
-for (auto iter = test.begin(); iter != test.end(); ++iter) {
-	std::cout << iter->first << "->" << iter->second << std::endl;
-}
+#include <map>
+#include <string>
+#include <iostream>
 
-// 基于范围的 for 循环
-for (auto val : test) {
-	std::cout << val.first << "->" << val.second << std::endl;
+int main(int argc, char* argv[])
+{
+    std::map<int, std::string> test = { {1, "1"}, {2, "2"}, {3, "3"} };
+    // 普通 for 循环
+    for (auto iter = test.begin(); iter != test.end(); ++iter) {
+        std::cout << iter->first << " : " << iter->second << std::endl;
+    }
+    // 基于范围的 for 循环
+    for (auto& val : test) {
+        std::cout << val.first << " : " << val.second << std::endl;
+    }
 }
 ```
 
-## 2. 容器约束
+(1) 基于范围的 for 循环中 val 的类型是 std::pair。因此，对于 map 这种关联性容器而言，需要使用 val.first 或 val.second 来提取键值。
 
-如果要改变某些容器元素的值，通过 auto& 可以解决大多数问题，但是某些特殊容器并不能达到预期的结果。比如希望在循环中对 set 的值进行修改，但是 set 内部元素的值是只读的——由 set 容器的特性决定的，因此 for 循环中的 auto& 会被推导为 const xx&。同样**基于范围的 map 遍历**，for 循环得到的 std::pair 引用，是**不能修改 key** 的。
+(2) auto 自动推导出的类型是容器中的 value_type，而不是迭代器。
+
+### 2. 容器约束
+
+(1) 对于 std::map 的遍历，基于范围的 for 循环中的 std::pair 引用，是不能够修改 first 的（std::set 类似）。
 
 ```c++
-#include <iostream>
+#include <map>
 #include <set>
 
-int main() {
-	std::set<int> s = { 1, 2, 3 };
-	for (auto &val : s) {  // val : const int&
-		std::cout << val++ << " ";  // error val不可更改
-	}
-	return 0;
+int main(int argc, char* argv[])
+{
+    std::map<int, int> testMap = { {1, 1}, {2, 2}, {3, 3} };
+    std::set<int> testSet = { 1, 2, 3, 4, 5 };
+
+    for (auto& val : testMap) {  // val: std::pair<const int, int>&
+        ++val.first;
+    }
+
+    for (auto& val : testSet) {  // val: const int&
+        ++val;  // error: 不能给常量赋值
+    }
 }
 ```
 
-### 3. 访问频率
-
-测试 C++11 中循环对于容器的访问频率。
+(2) 对于基于范围的 for 循环而言，冒号后面的表达式只会被执行一次。
 
 ```c++
-#include <iostream>
 #include <vector>
+#include <iostream>
 
-std::vector<int> vec = { 1,2,3,4,5 };
-
-std::vector<int>& func() {
-	std::cout << "get range->" << std::endl;
-	return vec;
+std::vector<int> getVec()
+{
+    std::cout << "getVec" << std::endl;
+    return { 1, 2, 3, 4, 5, 6 };
 }
 
-int main() {
-	for (auto val : func()) {
-		std::cout << val << std::endl;
-	}
-	return 0;
+int main()
+{
+    for (int n : getVec()) {
+        std::cout << n << " ";
+    }
+    return 0;
 }
 ```
 
 程序执行结果：
 
-![img](.\Photo\for_01.png)
+![img](.\Photo\for.png)
 
-从结果中可以看出，不论基于范围的 for 循环迭代了多少次，func() 只在第一次迭代之前被调用，在循环之前就确定好迭代的范围，而不是在每次迭代之前都去调用一次 end()。所以可以得出结论：**基于范围的 for 循环，冒号后面的表达式只会被执行一次**。
+## 四、总结
 
-那么如果在基于范围的 for 循环中修改容器会出现什么情况：
+基于范围的 for 循环其实是普通 for 循环的语法糖，同普通的循环一样，在迭代时修改容器可能引起迭代器失效，导致一些意料之外的结果。
 
-```c++
-#include <iostream>
-#include <vector>
+**切莫在 for 循环中修改容器的大小（添加和删除元素）**
 
-int main() {
-	std::vector<int> vec = { 1,2,3,4,5 };
-	for (auto val : vec) {
-		std::cout << val << std::endl;
-		vec.push_back(100);
-	}
-	return 0;
-}
-```
-
-程序执行结果：
-
-![img](.\Photo\for_02.png)
-
-从结果看出，这并不是我们需要的结果，如果把 vector 换成 list，结果又不一样。
-
-因为基于范围的 for 循环其实是普通 for 循环的语法糖，同普通的循环一样，在迭代时修改容器可能引起迭代器失效，导致一些意料之外的结果。由于我们这里是没法看到迭代器的，所以在基于范围的 for 循环中修改容器到底会造成什么样的影响非常困难。
-
-**切莫在 for 循环中修改容器的大小(添加和删除元素)**
